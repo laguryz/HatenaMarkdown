@@ -1,0 +1,622 @@
+# [PackageDev] target_format: plist, ext: tmLanguage
+---
+name: HatenaMarkdown
+scopeName: text.hmkd
+fileTypes: [md,hmkd]
+uuid: e9f5d96b-6f81-40ac-a5d1-dc8ad40fe76e
+
+patterns:
+- name: variable.parameter.h1.hmkd
+  match: ^(?<!\\)\#(?!\#)(.*)$
+  comment: 見出し1
+  
+- name: variable.parameter.h2.hmkd
+  match: ^(?<!\\)\#\#(?!\#)(.*)$
+  comment: 見出し2
+  
+- name: variable.parameter.h3.hmkd
+  match: ^(?<!\\)\#\#\#(?!\#)(.*)$
+  comment: 見出し3
+  
+- name: variable.parameter.h4.hmkd
+  match: ^(?<!\\)\#\#\#\#(?!\#)(.*)$
+  comment: 見出し4
+
+- name: variable.parameter.h5.hmkd
+  match: ^(?<!\\)\#\#\#\#\#(?!\#)(.*)$
+  comment: 見出し5
+
+- name: variable.parameter.h6.hmkd
+  match: ^(?<!\\)\#\#\#\#\#\#(?!\#)(.*)$
+  comment: 見出し6
+
+
+- name: constant.character.bullet.begin
+  begin: ^(?!\\)((\s)*\*)\s(\[(x){0,1}\])\s
+  beginCaptures:
+    '1': {name: constant.character.bullet.begin}
+    '3': {name: storage.type.bullet.checkbox}
+    '4': {name: keyword.bullet.checkbox.check}
+  end: $
+  patterns:
+  - include: $self
+  - name: string.other.bullet.contents
+    match: (.)
+  comment: 箇条書き チェックボックス
+- name: constant.character.bullet.begin
+  begin: ^(?!\\)((\s)*\*)\s
+  beginCaptures:
+    '1': {name: constant.character.bullet.begin}
+  end: $
+  patterns:
+  - include: $self
+  - name: string.other.bullet.contents
+    match: (.)
+  #match: ^[\ \t]*(?:[\*\+\-])(?:\ ){1}(.*)
+  #captures:
+  #  '1': {name: storage.type.bullet.content}
+  comment: 箇条書き
+
+- name: constant.character.list.begin
+  match: (?:[0-9]+)\.(?:\ ){1}(.*)
+  captures:
+    '1': {name: storage.type.list.content}
+  comment: 番号付きリスト
+
+- name: entity.name.function.newline
+  match: \ \ $
+  comment: 改行用の行末ダブルスペース
+
+- name: entity.name.function.bold
+  match: (?<!\\)\*(.)*(?=\*)(\*)
+#  match: (\*|\_)+(?!\*)([^\*\_]*)(\*|\_)+
+  comment: bold用 *hoge* <em>
+- name: entity.name.function.bold
+  match: (?<!\\)\*\*(.)*(?=\*)(\*\*)
+#  match: (\*|\_)+(?!\*)([^\*\_]*)(\*|\_)+
+  comment: bold用 *hoge*
+
+- name: entity.name.function.more
+  match: \<\!\-\-\ more\ \-\-\>
+  comment: 続きを読む
+
+- name: entity.name.function.contents
+  match: \[\:contents\]
+  comment: 目次
+
+- name: entity.name.function.table.content
+  begin: ^\|
+  end: \|$
+  patterns:
+  - include: $self
+#  match: \|(?:\s*)([^\-\:]+)\|+(?:.*)\s*\|
+  comment: 表組み記法
+#- name: entity.name.function.table.style
+#  match: (\|(?:\:*)\-+(?:\:*))+\|*
+#  include: $self
+#  comment: 表組み記法2
+
+- name: comment.line.break.normal
+  match: \<(?:/*)br(?:/*)\>
+  comment: 改行タグのみ
+- name: comment.line.break.style
+  match: \<(?:/*)br(?:/*)\ (.+)\=(.+)\>
+  comment: 改行タグ スタイル指定
+
+- name: entity.name.function.style.color
+  begin: \<span\ style\=(\"(?:color|background)\:)\ (\#[a-fA-F0-9]{6})(\")\>
+  beginCaptures:
+    '1': {name: constant.character.token}
+    '2': {name: keyword.style.color.colorcode}
+    '3': {name: constant.character.token}
+  end: \<\/span\>
+  patterns:
+  - include: $self
+  - match: (.*)
+    name: storage.type.style.color.destination
+  comment: 文字色/背景色
+
+- name: entity.name.function.strike
+  begin: \<strike\>
+  end: \<\/strike\>
+  patterns:
+  - match: (.)
+    name: keyword.control.strike.striked
+  comment: 打ち消し線(タグ)
+
+- name: constant.blockquotes
+  match: ^(\>+)(.*)$
+  captures:
+    '1': {name: constant.numeric.blockquotes}
+    '2': {name: storage.type.blockquotes}
+  comment: 引用
+
+- name: entity.name.function.horizontalrule
+  match: ^([\*\-\=](\s*)){3,}
+  comment: 水平線
+
+- name: constant.numeric.scratch
+  match: \~\~[^\n]*\~\~
+  comment: 打ち消し線
+
+- name: constant.numeric
+  match: \(\(*.\)\)
+  comment: 注釈
+
+- name: variable.other.code.highlight
+  begin: '(^\`\`\`)([a-zA-Z0-9]*)*((?=\:)\:.*)*$'
+  beginCaptures:
+    '1': {name: constant.numeric.code.highlight.start1}
+    '2': {name: keyword.code.highlight.start2}
+    '3': {name: entity.name.function.highlight}
+  end: (^\`\`\`$)
+  endCaptures:
+    '1': {name: constant.numeric.code.highlight.end}
+  comment: コードハイライト
+  patterns:
+  - name: storage.type.code.highligt.codeblock
+    match: (.)
+    captures:
+      '1': {name: storage.type.code.highlight.codeblock}
+
+
+# patterns:
+# - name: markup.raw.yaml.front-matter
+#   begin: (?<!\s)---\n$
+#   end: ^---\s
+#   patterns:
+#   - include: source.yaml
+
+# - name: markup.raw.coffee.front-matter
+#   begin: (?<!\s)---\s*coffee\n$
+#   end: ^---\s
+#   patterns:
+#   - include: source.coffee
+
+# - name: markup.raw.json.front-matter
+#   begin: (?<!\s)---\s*json\n$
+#   end: ^---\s
+#   patterns:
+#   - include: source.json
+
+# - name: markup.raw.block.markdown markup.raw.block.fenced.markdown
+#   begin: ^(```|~~~|{%\s*highlight)\s*(c)\s*((?:linenos\s*)?%})?$
+#   end: ^(```|~~~|{%\s*endhighlight\s*%})\n
+#   captures:
+#     '1': {name: punctuation.definition.fenced.markdown}
+#     '2': {name: variable.language.fenced.markdown}
+#     '3': {name: punctuation.definition.fenced.markdown}
+#   patterns:
+#   - include: source.c
+
+# - name: markup.raw.block.markdown markup.raw.block.fenced.markdown
+#   begin: ^(```|~~~|{%\s*highlight)\s*(cpp)\s*((?:linenos\s*)?%})?$
+#   end: ^(```|~~~|{%\s*endhighlight\s*%})\n
+#   captures:
+#     '1': {name: punctuation.definition.fenced.markdown}
+#     '2': {name: variable.language.fenced.markdown}
+#     '3': {name: punctuation.definition.fenced.markdown}
+#   patterns:
+#   - include: source.c++
+
+# - name: markup.raw.block.markdown markup.raw.block.fenced.markdown
+#   begin: ^(```|~~~|{%\s*highlight)\s*(coffee|coffeescript)\s*((?:linenos\s*)?%})?$
+#   end: ^(```|~~~|{%\s*endhighlight\s*%})\n
+#   captures:
+#     '1': {name: punctuation.definition.fenced.markdown}
+#     '2': {name: variable.language.fenced.markdown}
+#     '3': {name: punctuation.definition.fenced.markdown}
+#   patterns:
+#   - include: source.coffee
+
+# - name: markup.raw.block.markdown markup.raw.block.fenced.markdown
+#   begin: ^(```|~~~|{%\s*highlight)\s*(jade)\s*((?:linenos\s*)?%})?$
+#   end: ^(```|~~~|{%\s*endhighlight\s*%})\n
+#   captures:
+#     '1': {name: punctuation.definition.fenced.markdown}
+#     '2': {name: variable.language.fenced.markdown}
+#     '3': {name: punctuation.definition.fenced.markdown}
+#   patterns:
+#   - include: source.jade
+
+# - name: markup.raw.block.markdown markup.raw.block.fenced.markdown
+#   begin: ^(```|~~~|{%\s*highlight)\s*(css)\s*((?:linenos\s*)?%})?$
+#   end: ^(```|~~~|{%\s*endhighlight\s*%})\n
+#   captures:
+#     '1': {name: punctuation.definition.fenced.markdown}
+#     '2': {name: variable.language.fenced.markdown}
+#     '3': {name: punctuation.definition.fenced.markdown}
+#   patterns:
+#   - include: source.css
+
+# - name: markup.raw.block.markdown markup.raw.block.fenced.markdown
+#   begin: ^(```|~~~|{%\s*highlight)\s*(csharp)\s*((?:linenos\s*)?%})?$
+#   end: ^(```|~~~|{%\s*endhighlight\s*%})\n
+#   captures:
+#     '1': {name: punctuation.definition.fenced.markdown}
+#     '2': {name: variable.language.fenced.markdown}
+#     '3': {name: punctuation.definition.fenced.markdown}
+#   patterns:
+#   - include: source.cs
+
+# - name: markup.raw.block.markdown markup.raw.block.fenced.markdown
+#   begin: ^(```|~~~|{%\s*highlight)\s*(ejs|underscore|lodash)\s*((?:linenos\s*)?%})?$
+#   end: ^(```|~~~|{%\s*endhighlight\s*%})\n
+#   captures:
+#     '1': {name: punctuation.definition.fenced.markdown}
+#     '2': {name: variable.language.fenced.markdown}
+#     '3': {name: punctuation.definition.fenced.markdown}
+#   patterns:
+#   - include: source.ejs
+
+# - name: markup.raw.block.markdown markup.raw.block.fenced.markdown
+#   begin: ^(```|~~~|{%\s*highlight)\s*(diff)\s*((?:linenos\s*)?%})?$
+#   end: ^(```|~~~|{%\s*endhighlight\s*%})\n
+#   captures:
+#     '1': {name: punctuation.definition.fenced.markdown}
+#     '2': {name: variable.language.fenced.markdown}
+#     '3': {name: punctuation.definition.fenced.markdown}
+#   patterns:
+#   - include: source.diff
+
+# - name: markup.raw.block.markdown markup.raw.block.fenced.markdown
+#   begin: ^(```|~~~|{%\s*highlight)\s*(go|golang)\s*((?:linenos\s*)?%})?$
+#   end: ^(```|~~~|{%\s*endhighlight\s*%})\n
+#   captures:
+#     '1': {name: punctuation.definition.fenced.markdown}
+#     '2': {name: variable.language.fenced.markdown}
+#     '3': {name: punctuation.definition.fenced.markdown}
+#   patterns:
+#   - include: source.go
+
+# - name: markup.raw.block.markdown markup.raw.block.fenced.markdown
+#   begin: ^(```|~~~|{%\s*highlight)\s*(hbs|handlebars|html|html5)\s*((?:linenos\s*)?%})?$
+#   end: ^(```|~~~|{%\s*endhighlight\s*%})\n
+#   captures:
+#     '1': {name: punctuation.definition.fenced.markdown}
+#     '2': {name: variable.language.fenced.markdown}
+#     '3': {name: punctuation.definition.fenced.markdown}
+#   patterns:
+#   - include: text.html.basic
+#   - include: text.html.handlebars
+
+# - name: markup.raw.block.markdown markup.raw.block.fenced.markdown
+#   begin: ^(```|~~~|{%\s*highlight)\s*(java)\s*((?:linenos\s*)?%})?$
+#   end: ^(```|~~~|{%\s*endhighlight\s*%})\n
+#   captures:
+#     '1': {name: punctuation.definition.fenced.markdown}
+#     '2': {name: variable.language.fenced.markdown}
+#     '3': {name: punctuation.definition.fenced.markdown}
+#   patterns:
+#   - include: source.java
+
+# - name: markup.raw.block.markdown markup.raw.block.fenced.markdown
+#   begin: ^(```|~~~|{%\s*highlight)\s*(javascript|js)\s*((?:linenos\s*)?%})?$
+#   end: ^(```|~~~|{%\s*endhighlight\s*%})\n
+#   captures:
+#     '1': {name: punctuation.definition.fenced.markdown}
+#     '2': {name: variable.language.fenced.markdown}
+#     '3': {name: punctuation.definition.fenced.markdown}
+#   patterns:
+#   - include: source.js
+
+# - name: markup.raw.block.markdown markup.raw.block.fenced.markdown
+#   begin: ^(```|~~~|{%\s*highlight)\s*(json)\s*((?:linenos\s*)?%})?$
+#   end: ^(```|~~~|{%\s*endhighlight\s*%})\n
+#   captures:
+#     '1': {name: punctuation.definition.fenced.markdown}
+#     '2': {name: variable.language.fenced.markdown}
+#     '3': {name: punctuation.definition.fenced.markdown}
+#   patterns:
+#   - include: source.json
+
+# - name: markup.raw.block.markdown markup.raw.block.fenced.markdown
+#   begin: ^(```|{%\s*highlight)\s*(julia|jl)\s*((?:linenos\s*)?%})?$
+#   end: ^(```|{%\s*endhighlight\s*%})\n
+#   captures:
+#     '1': {name: punctuation.definition.fenced.markdown}
+#     '2': {name: variable.language.fenced.markdown}
+#     '3': {name: punctuation.definition.fenced.markdown}
+#   patterns:
+#   - include: source.julia
+
+# - name: markup.raw.block.markdown markup.raw.block.fenced.markdown
+#   begin: ^(```|{%\s*highlight)\s*(less)\s*((?:linenos\s*)?%})?$
+#   end: ^(```|{%\s*endhighlight\s*%})\n
+#   captures:
+#     '1': {name: punctuation.definition.fenced.markdown}
+#     '2': {name: variable.language.fenced.markdown}
+#     '3': {name: punctuation.definition.fenced.markdown}
+#   patterns:
+#   - include: source.css.less
+
+# - name: markup.raw.block.markdown markup.raw.block.fenced.markdown
+#   begin: ^(```|~~~|{%\s*highlight)\s*(ls|livescript|LiveScript)\s*((?:linenos\s*)?%})?$
+#   end: ^(```|~~~|{%\s*endhighlight\s*%})\n
+#   captures:
+#     '1': {name: punctuation.definition.fenced.markdown}
+#     '2': {name: variable.language.fenced.markdown}
+#     '3': {name: punctuation.definition.fenced.markdown}
+#   patterns:
+#   - include: source.livescript
+
+# - name: markup.raw.block.markdown markup.raw.block.fenced.markdown
+#   begin: ^(```|~~~|{%\s*highlight)\s*(lua)\s*((?:linenos\s*)?%})?$
+#   end: ^(```|~~~|{%\s*endhighlight\s*%})\n
+#   captures:
+#     '1': {name: punctuation.definition.fenced.markdown}
+#     '2': {name: variable.language.fenced.markdown}
+#     '3': {name: punctuation.definition.fenced.markdown}
+#   patterns:
+#   - include: source.lua
+
+# - name: markup.raw.block.markdown markup.raw.block.fenced.markdown
+#   begin: ^(```|~~~|{%\s*highlight)\s*(md|markdown)\s*((?:linenos\s*)?%})?$
+#   end: ^(```|~~~|{%\s*endhighlight\s*%})\n
+#   captures:
+#     '1': {name: punctuation.definition.fenced.markdown}
+#     '2': {name: variable.language.fenced.markdown}
+#     '3': {name: punctuation.definition.fenced.markdown}
+#   patterns:
+#   - include: text.html.markdown
+
+# - name: markup.raw.block.markdown markup.raw.block.fenced.markdown
+#   begin: ^(```|~~~|{%\s*highlight)\s*(swift)\s*((?:linenos\s*)?%})?$
+#   end: ^(```|~~~|{%\s*endhighlight\s*%})\n
+#   captures:
+#     '1': {name: punctuation.definition.fenced.markdown}
+#     '2': {name: variable.language.fenced.markdown}
+#     '3': {name: punctuation.definition.fenced.markdown}
+#   patterns:
+#   - include: source.swift
+
+# - name: markup.raw.block.markdown markup.raw.block.fenced.markdown
+#   begin: ^(```|~~~|{%\s*highlight)\s*(obj(?:ective\-|)c)\s*((?:linenos\s*)?%})?$
+#   end: ^(```|~~~|{%\s*endhighlight\s*%})\n
+#   captures:
+#     '1': {name: punctuation.definition.fenced.markdown}
+#     '2': {name: variable.language.fenced.markdown}
+#     '3': {name: punctuation.definition.fenced.markdown}
+#   patterns:
+#   - include: source.objc
+
+# - name: markup.raw.block.markdown markup.raw.block.fenced.markdown
+#   begin: ^(```|~~~|{%\s*highlight)\s*(obj(?:ective\-|)c\+\+)\s*((?:linenos\s*)?%})?$
+#   end: ^(```|~~~|{%\s*endhighlight\s*%})\n
+#   captures:
+#     '1': {name: punctuation.definition.fenced.markdown}
+#     '2': {name: variable.language.fenced.markdown}
+#     '3': {name: punctuation.definition.fenced.markdown}
+#   patterns:
+#   - include: source.objc++
+
+# - name: markup.raw.block.markdown markup.raw.block.fenced.markdown
+#   begin: ^(```|~~~|{%\s*highlight)\s*(perl)\s*((?:linenos\s*)?%})?$
+#   end: ^(```|~~~|{%\s*endhighlight\s*%})\n
+#   captures:
+#     '1': {name: punctuation.definition.fenced.markdown}
+#     '2': {name: variable.language.fenced.markdown}
+#     '3': {name: punctuation.definition.fenced.markdown}
+#   patterns:
+#   - include: source.perl
+
+# - name: markup.raw.block.markdown markup.raw.block.fenced.markdown
+#   begin: ^(```|~~~|{%\s*highlight)\s*(php)\s*((?:linenos\s*)?%})?$
+#   end: ^(```|~~~|{%\s*endhighlight\s*%})\n
+#   captures:
+#     '1': {name: punctuation.definition.fenced.markdown}
+#     '2': {name: variable.language.fenced.markdown}
+#     '3': {name: punctuation.definition.fenced.markdown}
+#   patterns:
+#   - include: source.php
+
+# - name: markup.raw.block.markdown markup.raw.block.fenced.markdown
+#   begin: ^(```|~~~|{%\s*highlight)\s*(python)\s*((?:linenos\s*)?%})?$
+#   end: ^(```|~~~|{%\s*endhighlight\s*%})\n
+#   captures:
+#     '1': {name: punctuation.definition.fenced.markdown}
+#     '2': {name: variable.language.fenced.markdown}
+#     '3': {name: punctuation.definition.fenced.markdown}
+#   patterns:
+#   - include: source.python
+
+# - name: markup.raw.block.markdown markup.raw.block.fenced.markdown
+#   begin: ^(```|~~~)\s*\{?\s*(r)(?:[ \}].*$|\}?$)
+#   end: ^(```|~~~|{%\s*endhighlight\s*%})\n
+#   captures:
+#     '1': {name: punctuation.definition.fenced.markdown}
+#     '2': {name: variable.language.fenced.markdown}
+#     '3': {name: punctuation.definition.fenced.markdown}
+#   patterns:
+#   - include: source.r
+
+# - name: markup.raw.block.markdown markup.raw.block.fenced.markdown
+#   begin: ^(```|~~~|{%\s*highlight)\s*(ruby)\s*((?:linenos\s*)?%})?$
+#   end: ^(```|~~~|{%\s*endhighlight\s*%})\n
+#   captures:
+#     '1': {name: punctuation.definition.fenced.markdown}
+#     '2': {name: variable.language.fenced.markdown}
+#     '3': {name: punctuation.definition.fenced.markdown}
+#   patterns:
+#   - include: source.ruby
+
+# - name: markup.raw.block.markdown markup.raw.block.fenced.markdown
+#   begin: ^(```|~~~|{%\s*highlight)\s*(rust)\s*((?:linenos\s*)?%})?$
+#   end: ^(```|~~~|{%\s*endhighlight\s*%})\n
+#   captures:
+#     '1': {name: punctuation.definition.fenced.markdown}
+#     '2': {name: variable.language.fenced.markdown}
+#     '3': {name: punctuation.definition.fenced.markdown}
+#   patterns:
+#   - include: source.rust
+
+# - name: markup.raw.block.markdown markup.raw.block.fenced.markdown
+#   begin: ^(```|~~~|{%\s*highlight)\s*(sass)\s*((?:linenos\s*)?%})?$
+#   end: ^(```|~~~|{%\s*endhighlight\s*%})\n
+#   captures:
+#     '1': {name: punctuation.definition.fenced.markdown}
+#     '2': {name: variable.language.fenced.markdown}
+#     '3': {name: punctuation.definition.fenced.markdown}
+#   patterns:
+#   - include: source.sass
+
+# - name: markup.raw.block.markdown markup.raw.block.fenced.markdown
+#   begin: ^(```|~~~|{%\s*highlight)\s*(scala)\s*((?:linenos\s*)?%})?$
+#   end: ^(```|~~~|{%\s*endhighlight\s*%})\n
+#   captures:
+#     '1': {name: punctuation.definition.fenced.markdown}
+#     '2': {name: variable.language.fenced.markdown}
+#     '3': {name: punctuation.definition.fenced.markdown}
+#   patterns:
+#   - include: source.scala
+
+# - name: markup.raw.block.markdown markup.raw.block.fenced.markdown
+#   begin: ^(```|~~~|{%\s*highlight)\s*(scss)\s*((?:linenos\s*)?%})?$
+#   end: ^(```|~~~|{%\s*endhighlight\s*%})\n
+#   captures:
+#     '1': {name: punctuation.definition.fenced.markdown}
+#     '2': {name: variable.language.fenced.markdown}
+#     '3': {name: punctuation.definition.fenced.markdown}
+#   patterns:
+#   - include: source.scss
+
+# - name: markup.raw.block.markdown markup.raw.block.fenced.markdown
+#   begin: ^(```|~~~|{%\s*highlight)\s*(sh|shell|bash)\s*((?:linenos\s*)?%})?$
+#   end: ^(```|~~~|{%\s*endhighlight\s*%})\n
+#   captures:
+#     '1': {name: punctuation.definition.fenced.markdown}
+#     '2': {name: variable.language.fenced.markdown}
+#     '3': {name: punctuation.definition.fenced.markdown}
+#   patterns:
+#   - include: source.shell
+
+# - name: markup.raw.block.markdown markup.raw.block.fenced.markdown
+#   begin: ^(```|~~~|{%\s*highlight)\s*(sql|mysql|ddl|dml)\s*((?:linenos\s*)?%})?$
+#   end: ^(```|~~~|{%\s*endhighlight\s*%})\n
+#   captures:
+#     '1': {name: punctuation.definition.fenced.markdown}
+#     '2': {name: variable.language.fenced.markdown}
+#     '3': {name: punctuation.definition.fenced.markdown}
+#   patterns:
+#   - include: source.sql
+
+# - name: markup.raw.block.markdown markup.raw.block.fenced.markdown
+#   begin: ^(```|~~~|{%\s*highlight)\s*(postgresql|postgres|pgsql)\s*((?:linenos\s*)?%})?$
+#   end: ^(```|~~~|{%\s*endhighlight\s*%})\n
+#   captures:
+#     '1': {name: punctuation.definition.fenced.markdown}
+#     '2': {name: variable.language.fenced.markdown}
+#     '3': {name: punctuation.definition.fenced.markdown}
+#   patterns:
+#   - include: source.pgsql
+
+# - name: markup.raw.block.markdown markup.raw.block.fenced.markdown
+#   begin: ^(```|~~~|{%\s*highlight)\s*(styl)\s*((?:linenos\s*)?%})?$
+#   end: ^(```|~~~|{%\s*endhighlight\s*%})\n
+#   captures:
+#     '1': {name: punctuation.definition.fenced.markdown}
+#     '2': {name: variable.language.fenced.markdown}
+#     '3': {name: punctuation.definition.fenced.markdown}
+#   patterns:
+#   - include: source.stylus
+
+# - name: markup.raw.block.markdown markup.raw.block.fenced.markdown
+#   begin: ^(```|~~~|{%\s*highlight)\s*(swig|liquid)\s*((?:linenos\s*)?%})?$
+#   end: ^(```|~~~|{%\s*endhighlight\s*%})\n
+#   captures:
+#     '1': {name: punctuation.definition.fenced.markdown}
+#     '2': {name: variable.language.fenced.markdown}
+#     '3': {name: punctuation.definition.fenced.markdown}
+#   patterns:
+#   - include: text.html.swig
+
+# - name: markup.raw.block.markdown markup.raw.block.fenced.markdown
+#   begin: ^(```|~~~|{%\s*highlight)\s*(xml)\s*((?:linenos\s*)?%})?$
+#   end: ^(```|~~~|{%\s*endhighlight\s*%})\n
+#   captures:
+#     '1': {name: punctuation.definition.fenced.markdown}
+#     '2': {name: variable.language.fenced.markdown}
+#     '3': {name: punctuation.definition.fenced.markdown}
+#   patterns:
+#   - include: text.xml
+
+# - name: markup.raw.block.markdown markup.raw.block.fenced.markdown
+#   begin: ^(```|~~~|{%\s*highlight)\s*(yaml)\s*((?:linenos\s*)?%})?$
+#   end: ^(```|~~~|{%\s*endhighlight\s*%})\n
+#   captures:
+#     '1': {name: punctuation.definition.fenced.markdown}
+#     '2': {name: variable.language.fenced.markdown}
+#     '3': {name: punctuation.definition.fenced.markdown}
+#   patterns:
+#   - include: source.yaml
+
+#- name: markup.raw.block.markdown markup.raw.block.fenced.markdown
+#  begin: ^(```|~~~|{%\s*highlight)\s*(\w*)\s*((?:linenos\s*)?%})?$
+#  end: ^(```|~~~|{%\s*endhighlight\s*%})\n
+#  captures:
+#    '1': {name: punctuation.definition.fenced.markdown}
+#    '2': {name: variable.language.fenced.markdown}
+#    '3': {name: punctuation.definition.fenced.markdown}
+
+
+- name: constant.numeric.code.oneliner
+  match: \`{1,2}([^\n]*?)(?<!\\)\`{1,2}
+  captures:
+    '1': {name: storage.type.code.oneliner.codeblock}
+  comment: 一行コード
+
+- name: entity.name.function.embed.pict
+  match: \!\[(.+)\]\(http(?:s*)\:\/\/.+?\ *((\"(.)*\"))*\)
+  captures:
+    '1': {name: string.other.embed.pict.title}
+    '2': {name: keyword.embed.pict.desc}
+  comment: 埋め込み画像
+
+- name: entity.name.function.embed.hatenaphoto.frame
+  match: (?:\[f\:id\:hatenablog\:[0-9a-z]+\:image)+((\:w[0-9]+|\:left|\:right)*(?=\]))\]
+  captures:
+    '1': {name: keyword.embed.hatenaphoto.option}
+  comment: はてなフォト画像 ~~スニペット使うとバグりそうで怖い~~ 上手くいった
+
+- name: entity.name.function.embed.textlink
+  match: \[([^\[\]]+)\]\(http(?:s{0,1})\:\/\/.+?\ *((\"(.)*\"))*\)
+  captures:
+    '1': {name: string.other.embed.textlink.}
+    '2': {name: keyword.embed.textlink.title}
+  comment: テキストリンク
+
+- name: entity.name.function.embedlink.frame
+  match: (?:^\[http(?:s??)\:\/\/.+?)((\:title|\:embed|\:cite)*(?=\]))\]
+  captures:
+    '1': {name: keyword.embed.embedlink.option}
+  comment: 埋め込みリンク
+
+- name: entity.name.function.embed.taglink.frame
+  match: \[([^\[\]]*?)\]\[\]
+  captures:
+    '1': {name: keyword.embed.taglink.tag}
+  comment: タグリンク-タグパターン1
+- name: entity.name.function.embed.taglink.frame
+  match: \[(.*?)\]\[(.*?)\]
+  captures:
+    '1': {name: string.other.embed.taglink.desc}
+    '2': {name: keyword.embed.taglink.tag}
+  comment: タグリンク-タグパターン2
+- name: entity.name.function.embed.taglink.link
+  match: \[(.*)\]\:(?:http(?:s{0,1})\:\/\/|mailto\:)[^\s]*
+  captures:
+    '1': {name: keyword.embed.taglink.tag}
+  comment: タグリンク-リンク
+
+- name: entity.name.function.embed.amazon.frame
+  match: \[asin\:[A-Z0-9]+(\:detail|\:image|\:large|\:title){1}\]
+  captures:
+    '1': {name: keyword.embed.amazon.option}
+  comment: amazon商品リンク
+
+- name: comment.line.double-slash.htmltag.comment
+  match: \s*\<\!\-\-\s*[^\-\>]*\s*\-\-\>
+  comment: htmlタグ コメント
+
+
+...
